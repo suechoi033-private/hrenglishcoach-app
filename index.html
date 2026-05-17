@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR English Coach — Business English for HRBP/CHRO</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <div>
+        <h1>HR English Coach</h1>
+        <p class="subtitle">CHRO & HRBP를 위한 비즈니스 영어 연습</p>
+      </div>
+      <div class="header-actions">
+        <button id="how-to-btn" class="ghost-btn" title="사용법">사용법</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <section class="controls-bar">
+      <div class="control-group">
+        <label for="case-select">케이스</label>
+        <select id="case-select"></select>
+      </div>
+      <div class="control-group">
+        <label for="difficulty-select">난이도</label>
+        <select id="difficulty-select">
+          <option value="beginner">Beginner (초급)</option>
+          <option value="intermediate" selected>Intermediate (중급)</option>
+          <option value="advanced">Advanced (고급)</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label for="lang-toggle">번역 표시</label>
+        <select id="lang-toggle">
+          <option value="en" selected>영문만</option>
+          <option value="both">영문 + 한글</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label for="speed-slider">음성 속도: <span id="speed-value">1.0</span>x</label>
+        <input type="range" id="speed-slider" min="0.5" max="1.1" step="0.05" value="1.0">
+      </div>
+    </section>
+
+    <section class="card briefing-card">
+      <div class="card-header">
+        <h2>📋 Briefing</h2>
+        <button class="play-btn" data-target="briefing-en" title="듣기">🔊</button>
+      </div>
+      <div id="briefing-en" class="english-text clickable-text"></div>
+      <div id="briefing-ko" class="korean-text"></div>
+    </section>
+
+    <section class="card case-card">
+      <div class="card-header">
+        <h2>📖 Case Study</h2>
+        <button class="play-btn" data-target="case-en" title="듣기">🔊</button>
+      </div>
+      <div id="case-en" class="english-text clickable-text"></div>
+      <div id="case-ko" class="korean-text"></div>
+      <p class="hint">💡 영문 단어를 클릭하면 사전과 번역이 표시됩니다.</p>
+    </section>
+
+    <section class="card practice-card">
+      <div class="card-header">
+        <h2>🎯 Practice</h2>
+        <span class="question-counter">
+          질문 <span id="question-number">1</span> / <span id="question-total">5</span>
+        </span>
+      </div>
+
+      <div class="question-block">
+        <p id="current-question" class="question-text"></p>
+        <div class="question-actions">
+          <button id="play-question-btn" class="primary-btn">🔊 질문 듣기</button>
+          <button id="prev-question-btn" class="ghost-btn">← 이전</button>
+          <button id="next-question-btn" class="ghost-btn">다음 →</button>
+        </div>
+      </div>
+
+      <div class="answer-tabs">
+        <button class="tab-btn active" data-tab="text">📝 텍스트로 답변</button>
+        <button class="tab-btn" data-tab="voice">🎤 음성으로 답변</button>
+      </div>
+
+      <div class="tab-content" id="tab-text">
+        <textarea id="answer-text" placeholder="여기에 답변을 영어로 작성하세요..." rows="6"></textarea>
+      </div>
+
+      <div class="tab-content hidden" id="tab-voice">
+        <div class="voice-controls">
+          <button id="record-btn" class="record-btn">🎤 녹음 시작</button>
+          <span id="recording-status" class="recording-status">버튼을 눌러 답변을 녹음하세요</span>
+        </div>
+        <textarea id="answer-voice" placeholder="음성 인식 결과가 여기에 표시됩니다 (직접 수정도 가능)" rows="6"></textarea>
+      </div>
+
+      <button id="submit-btn" class="submit-btn">답변 제출 & 모범답안 보기</button>
+    </section>
+
+    <section class="card feedback-card hidden" id="feedback-card">
+      <div class="card-header">
+        <h2>💬 Feedback</h2>
+      </div>
+      <div class="comparison">
+        <div class="answer-column">
+          <h4>내 답변</h4>
+          <p id="my-answer-display" class="answer-display"></p>
+        </div>
+        <div class="answer-column model">
+          <div class="answer-column-header">
+            <h4>모범 답변 (참고용)</h4>
+            <button id="play-model-btn" class="play-btn small">🔊</button>
+          </div>
+          <p id="model-answer-display" class="answer-display clickable-text"></p>
+        </div>
+      </div>
+      <div class="tips-section">
+        <h4>💡 답변 팁</h4>
+        <ul id="tips-display"></ul>
+      </div>
+    </section>
+
+    <section class="card history-card">
+      <div class="card-header">
+        <h2>📚 학습 기록</h2>
+        <button id="clear-history-btn" class="ghost-btn small">전체 삭제</button>
+      </div>
+      <div id="history-list" class="history-list">아직 기록이 없습니다. 답변을 제출하면 여기에 쌓입니다.</div>
+    </section>
+  </main>
+
+  <div id="dictionary-popup" class="dictionary-popup hidden">
+    <div class="popup-header">
+      <h3 id="dict-word"></h3>
+      <button class="close-btn" id="close-dict-btn">×</button>
+    </div>
+    <div id="dict-content" class="popup-content">로딩 중...</div>
+  </div>
+  <div id="popup-overlay" class="popup-overlay hidden"></div>
+
+  <div id="howto-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="popup-header">
+        <h3>사용법</h3>
+        <button class="close-btn" id="close-howto-btn">×</button>
+      </div>
+      <div class="popup-content">
+        <ol>
+          <li><b>난이도 선택</b> — Beginner / Intermediate / Advanced 중 선택하세요.</li>
+          <li><b>Briefing & Case Study 읽기</b> — 🔊 버튼으로 듣고, 모르는 단어는 클릭하면 사전이 열립니다.</li>
+          <li><b>질문에 답변</b> — 텍스트로 쓰거나 🎤 음성으로 녹음하세요.</li>
+          <li><b>모범 답변과 비교</b> — 제출 후 자신의 답변과 비교하고 답변 팁을 확인하세요.</li>
+          <li><b>학습 기록</b> — 모든 답변은 브라우저에 자동 저장됩니다 (서버 전송 없음).</li>
+        </ol>
+        <p><b>음성 기능 사용을 위해서는:</b></p>
+        <ul>
+          <li>🎤 음성 입력: Chrome 또는 Edge 브라우저 필요 (Safari/Firefox는 일부 제한)</li>
+          <li>🔊 음성 출력: 모든 최신 브라우저에서 작동</li>
+          <li>HTTPS 환경 필요 (GitHub Pages 또는 localhost)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="cases.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
