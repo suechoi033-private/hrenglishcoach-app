@@ -14,6 +14,7 @@
         <p class="subtitle">HR 담당자를 위한 비즈니스 영어 학습</p>
       </div>
       <div class="header-actions">
+        <button id="today-btn" class="primary-btn" title="오늘의 추천 학습으로 이동">📅 오늘의 학습</button>
         <button id="how-to-btn" class="ghost-btn" title="사용법">사용법</button>
       </div>
     </div>
@@ -45,6 +46,11 @@
         <input type="range" id="speed-slider" min="0.5" max="1.1" step="0.05" value="1.0">
       </div>
     </section>
+
+    <div id="today-banner" class="today-banner hidden">
+      <span>📅 <b>오늘의 추천 학습</b>이 자동 선택되었습니다.</span>
+      <button id="dismiss-banner-btn" class="ghost-btn small">확인</button>
+    </div>
 
     <section class="card briefing-card">
       <div class="card-header">
