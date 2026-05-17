@@ -126,20 +126,7 @@ Claude가 위 가이드를 따라 자동으로 작성합니다.
 
 ---
 
-## 6. (Phase 2) 자동 생성 워크플로우
-
-`.github/workflows/generate-case.yml` 활성화 후:
-1. GitHub 레포지토리 → Actions 탭
-2. "Generate New Case Study" 워크플로우 선택
-3. "Run workflow" 버튼 클릭 (주제/카테고리 입력)
-4. 1~2분 후 새 PR이 자동 생성됨
-5. PR을 리뷰하고 머지
-
-요구사항: `ANTHROPIC_API_KEY` 시크릿이 레포에 등록되어야 함 (Settings → Secrets and variables → Actions).
-
----
-
-## 7. 케이스가 많아지면 (10개 이상)
+## 6. 케이스가 많아지면 (10개 이상)
 
 `cases.js`가 너무 길어지면 다음 구조로 리팩토링 고려:
 

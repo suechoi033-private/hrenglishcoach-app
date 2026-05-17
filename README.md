@@ -50,8 +50,7 @@ hrenglishcoach-app/
 │   ├── ROADMAP.md          # 로드맵
 │   └── ADDING-CASES.md     # 새 케이스 추가 가이드
 └── .github/workflows/
-    ├── daily-reminder.yml      # 매일 학습 리마인더 이슈 자동 생성
-    └── generate-case.yml       # 새 케이스 AI 자동 생성 (Phase 2, API 키 필요)
+    └── daily-reminder.yml      # 매일 학습 리마인더 이슈 자동 생성
 ```
 
 ## 문서
@@ -65,7 +64,7 @@ hrenglishcoach-app/
 
 자세한 가이드는 [docs/ADDING-CASES.md](docs/ADDING-CASES.md)를 참고하세요. 요약:
 - `cases.js`의 `CASES` 배열에 새 객체를 추가
-- 또는 GitHub Actions의 `Generate New Case Study` 워크플로우 수동 트리거 (API 키 필요)
+- 또는 Claude Code 세션에서 "새 케이스 추가해줘"로 요청
 
 ## Phase 2 업그레이드 경로 (선택)
 

@@ -208,16 +208,9 @@
 - **알림 수신**: GitHub Notifications 설정에 따라 이메일/모바일 푸시
 - **비활성화**: 워크플로우 파일을 삭제하거나 `on:` 섹션 주석 처리
 
-### 9.2 새 케이스 자동 생성 (Phase 2, 셋업만 완료)
-- **파일**: `.github/workflows/generate-case.yml`
-- **트리거**: `workflow_dispatch` (수동) — Phase 2에서 cron으로 전환
-- **요구사항**: `ANTHROPIC_API_KEY` 시크릿 등록 필요
-- **동작**:
-  1. Claude API 호출하여 케이스 JSON 생성
-  2. `cases.js`에 추가
-  3. 새 브랜치 푸시 + PR 생성
-  4. 사용자가 PR 리뷰 후 머지
-- **비용**: 케이스당 약 $0.05~0.10 (Sonnet 기준)
+### 9.2 새 케이스 추가
+- Claude Code 세션에서 "새 케이스 추가해줘" 요청
+- 또는 `cases.js` 직접 편집 (스키마는 `docs/ADDING-CASES.md` 참고)
 
 ---
 

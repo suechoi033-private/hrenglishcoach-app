@@ -29,8 +29,7 @@ hrenglishcoach-app/
 │   └── ADDING-CASES.md     # 새 케이스 추가 방법
 └── .github/
     └── workflows/
-        ├── daily-reminder.yml    # 매일 학습 리마인더 이슈 자동 생성
-        └── generate-case.yml     # (수동 또는 주간) Claude API로 새 케이스 생성
+        └── daily-reminder.yml    # 매일 학습 리마인더 이슈 자동 생성
 ```
 
 ## 작업 시 우선 참고할 문서
