@@ -9,6 +9,7 @@ const state = {
   questionIndex: 0,
   voiceSpeed: 1.0,
   showKorean: false,
+  lastVisitDate: '',
   history: []
 };
 
@@ -31,6 +32,8 @@ function loadSettings() {
     if (typeof s.voiceSpeed === 'number') state.voiceSpeed = s.voiceSpeed;
     if (typeof s.showKorean === 'boolean') state.showKorean = s.showKorean;
     if (typeof s.caseIndex === 'number') state.caseIndex = s.caseIndex;
+    if (typeof s.questionIndex === 'number') state.questionIndex = s.questionIndex;
+    if (typeof s.lastVisitDate === 'string') state.lastVisitDate = s.lastVisitDate;
   } catch {}
 }
 
@@ -39,8 +42,35 @@ function saveSettings() {
     difficulty: state.difficulty,
     voiceSpeed: state.voiceSpeed,
     showKorean: state.showKorean,
-    caseIndex: state.caseIndex
+    caseIndex: state.caseIndex,
+    questionIndex: state.questionIndex,
+    lastVisitDate: state.lastVisitDate
   }));
+}
+
+function todayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function getTodaysCaseQuestion() {
+  const d = new Date();
+  const start = new Date(d.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((d - start) / (1000 * 60 * 60 * 24));
+  const caseIdx = dayOfYear % CASES.length;
+  const qs = CASES[caseIdx].questions[state.difficulty] || CASES[caseIdx].questions.intermediate || [];
+  const qIdx = qs.length > 0 ? dayOfYear % qs.length : 0;
+  return { caseIndex: caseIdx, questionIndex: qIdx };
+}
+
+function applyTodaysRecommendation(showBanner) {
+  const t = getTodaysCaseQuestion();
+  state.caseIndex = t.caseIndex;
+  state.questionIndex = t.questionIndex;
+  state.lastVisitDate = todayKey();
+  saveSettings();
+  if (showBanner && els.todayBanner) {
+    els.todayBanner.classList.remove('hidden');
+  }
 }
 
 function loadHistory() {
@@ -453,6 +483,17 @@ function attachListeners() {
     els.howtoModal.classList.remove('hidden');
     els.popupOverlay.classList.remove('hidden');
   });
+
+  els.todayBtn.addEventListener('click', () => {
+    applyTodaysRecommendation(false);
+    renderCaseSelect();
+    renderBriefingAndCase();
+    renderQuestion();
+  });
+
+  els.dismissBannerBtn.addEventListener('click', () => {
+    els.todayBanner.classList.add('hidden');
+  });
 }
 
 function init() {
@@ -491,9 +532,16 @@ function init() {
   els.howToBtn = $('how-to-btn');
   els.howtoModal = $('howto-modal');
   els.closeHowtoBtn = $('close-howto-btn');
+  els.todayBtn = $('today-btn');
+  els.todayBanner = $('today-banner');
+  els.dismissBannerBtn = $('dismiss-banner-btn');
 
   loadSettings();
   loadHistory();
+
+  if (state.lastVisitDate !== todayKey()) {
+    applyTodaysRecommendation(true);
+  }
 
   els.difficultySelect.value = state.difficulty;
   els.langToggle.value = state.showKorean ? 'both' : 'en';

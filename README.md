@@ -39,16 +39,33 @@ python3 -m http.server 8000
 
 ```
 hrenglishcoach-app/
-├── index.html      # 메인 페이지
-├── styles.css      # 스타일
-├── app.js          # 앱 로직
-├── cases.js        # 케이스 스터디 데이터 (여기에 케이스 추가)
-└── README.md
+├── index.html              # 메인 페이지
+├── styles.css              # 스타일
+├── app.js                  # 앱 로직
+├── cases.js                # 케이스 스터디 데이터
+├── CLAUDE.md               # Claude 세션 컨텍스트 (자동 로드)
+├── docs/
+│   ├── PRD.md              # 제품 기획서
+│   ├── FEATURES.md         # 기능 상세 명세
+│   ├── ROADMAP.md          # 로드맵
+│   └── ADDING-CASES.md     # 새 케이스 추가 가이드
+└── .github/workflows/
+    ├── daily-reminder.yml      # 매일 학습 리마인더 이슈 자동 생성
+    └── generate-case.yml       # 새 케이스 AI 자동 생성 (Phase 2, API 키 필요)
 ```
+
+## 문서
+
+- 📋 [기획서 (PRD)](docs/PRD.md) — 왜, 누구를 위해, 무엇을 만드는가
+- 📐 [기능 명세서](docs/FEATURES.md) — 각 기능의 정확한 동작
+- 🗺️ [로드맵](docs/ROADMAP.md) — Phase 2, 3 계획
+- ➕ [케이스 추가 가이드](docs/ADDING-CASES.md) — 새 케이스 작성 방법
 
 ## 케이스 추가하기
 
-`cases.js`의 `CASES` 배열에 새 객체를 추가하면 됩니다. 각 케이스는 `briefing`, `caseStudy`, `questions`(beginner/intermediate/advanced 별), `glossary`를 가집니다.
+자세한 가이드는 [docs/ADDING-CASES.md](docs/ADDING-CASES.md)를 참고하세요. 요약:
+- `cases.js`의 `CASES` 배열에 새 객체를 추가
+- 또는 GitHub Actions의 `Generate New Case Study` 워크플로우 수동 트리거 (API 키 필요)
 
 ## Phase 2 업그레이드 경로 (선택)
 

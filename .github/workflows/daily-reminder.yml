@@ -1,0 +1,74 @@
+name: Daily English Practice Reminder
+
+on:
+  schedule:
+    # 매일 06:00 KST = 전날 21:00 UTC
+    - cron: '0 21 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compute today's recommendation
+        id: today
+        run: |
+          NODE_OUT=$(node -e "
+            const { CASES } = require('./cases.js');
+            const d = new Date();
+            const start = new Date(d.getFullYear(), 0, 0);
+            const dayOfYear = Math.floor((d - start) / (1000 * 60 * 60 * 24));
+            const ci = dayOfYear % CASES.length;
+            const c = CASES[ci];
+            const qs = c.questions.intermediate || [];
+            const qi = qs.length > 0 ? dayOfYear % qs.length : 0;
+            const q = qs[qi] || { q: '(no question)' };
+            const dateStr = d.toISOString().slice(0, 10);
+            const out = {
+              date: dateStr,
+              caseTitle: c.titleKo + ' — ' + c.title,
+              questionNumber: qi + 1,
+              questionTotal: qs.length,
+              questionText: q.q
+            };
+            console.log(JSON.stringify(out));
+          ")
+          echo "json=$NODE_OUT" >> "$GITHUB_OUTPUT"
+
+      - name: Create reminder issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const data = JSON.parse(`${{ steps.today.outputs.json }}`);
+            const title = `📅 [${data.date}] 오늘의 비즈니스 영어 학습`;
+            const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
+            const pagesUrl = `https://${context.repo.owner}.github.io/${context.repo.repo}/`;
+            const body = [
+              `## 🎯 오늘의 추천 학습`,
+              ``,
+              `**케이스**: ${data.caseTitle}`,
+              `**질문 ${data.questionNumber}/${data.questionTotal}**:`,
+              `> ${data.questionText}`,
+              ``,
+              `---`,
+              `👉 [지금 학습 시작하기](${pagesUrl})`,
+              ``,
+              `매일 20분이면 충분합니다. 음성으로 듣고 답해보세요 🎤`,
+              ``,
+              `<sub>이 이슈는 매일 06:00 KST에 자동 생성됩니다. 비활성화하려면 \`.github/workflows/daily-reminder.yml\`을 삭제하세요.</sub>`
+            ].join('\n');
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+              labels: ['daily-practice']
+            });
