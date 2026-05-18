@@ -8,6 +8,7 @@ const state = {
   difficulty: 'intermediate',
   questionIndex: 0,
   voiceSpeed: 1.0,
+  voiceURI: '',
   showKorean: false,
   lastVisitDate: '',
   history: []
@@ -30,6 +31,7 @@ function loadSettings() {
     const s = JSON.parse(localStorage.getItem(STORAGE_KEYS.settings) || '{}');
     if (s.difficulty) state.difficulty = s.difficulty;
     if (typeof s.voiceSpeed === 'number') state.voiceSpeed = s.voiceSpeed;
+    if (typeof s.voiceURI === 'string') state.voiceURI = s.voiceURI;
     if (typeof s.showKorean === 'boolean') state.showKorean = s.showKorean;
     if (typeof s.caseIndex === 'number') state.caseIndex = s.caseIndex;
     if (typeof s.questionIndex === 'number') state.questionIndex = s.questionIndex;
@@ -41,6 +43,7 @@ function saveSettings() {
   localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify({
     difficulty: state.difficulty,
     voiceSpeed: state.voiceSpeed,
+    voiceURI: state.voiceURI,
     showKorean: state.showKorean,
     caseIndex: state.caseIndex,
     questionIndex: state.questionIndex,
@@ -220,6 +223,56 @@ function renderHistory() {
   });
 }
 
+function getEnglishVoices() {
+  if (!('speechSynthesis' in window)) return [];
+  const voices = window.speechSynthesis.getVoices() || [];
+  const en = voices.filter((v) => v.lang && v.lang.toLowerCase().startsWith('en'));
+  const score = (v) => {
+    const n = (v.name || '').toLowerCase();
+    let s = 0;
+    if (/natural|neural|premium|enhanced|wavenet|studio/.test(n)) s += 100;
+    if (/google/.test(n)) s += 30;
+    if (/microsoft/.test(n)) s += 20;
+    if (/samantha|alex|karen|daniel|aria|jenny|guy|davis/.test(n)) s += 15;
+    if (v.localService) s -= 5;
+    if (v.lang === 'en-US') s += 10;
+    if (v.lang === 'en-GB') s += 5;
+    return s;
+  };
+  return en.sort((a, b) => score(b) - score(a));
+}
+
+function pickVoice() {
+  const voices = getEnglishVoices();
+  if (voices.length === 0) return null;
+  if (state.voiceURI) {
+    const match = voices.find((v) => v.voiceURI === state.voiceURI);
+    if (match) return match;
+  }
+  return voices[0];
+}
+
+function populateVoiceSelect() {
+  if (!els.voiceSelect) return;
+  const voices = getEnglishVoices();
+  if (voices.length === 0) return;
+  els.voiceSelect.innerHTML = '';
+  voices.forEach((v) => {
+    const opt = document.createElement('option');
+    opt.value = v.voiceURI;
+    const isPremium = /natural|neural|premium|enhanced|wavenet|studio/i.test(v.name);
+    const label = (isPremium ? '⭐ ' : '') + v.name + ' (' + v.lang + ')';
+    opt.textContent = label;
+    els.voiceSelect.appendChild(opt);
+  });
+  if (state.voiceURI && voices.some((v) => v.voiceURI === state.voiceURI)) {
+    els.voiceSelect.value = state.voiceURI;
+  } else {
+    const chosen = pickVoice();
+    if (chosen) els.voiceSelect.value = chosen.voiceURI;
+  }
+}
+
 function speak(text) {
   if (!('speechSynthesis' in window)) {
     alert('이 브라우저는 음성 출력을 지원하지 않습니다.');
@@ -229,9 +282,11 @@ function speak(text) {
   const u = new SpeechSynthesisUtterance(text);
   u.rate = state.voiceSpeed;
   u.lang = 'en-US';
-  const voices = window.speechSynthesis.getVoices();
-  const en = voices.find((v) => v.lang && v.lang.startsWith('en'));
-  if (en) u.voice = en;
+  const v = pickVoice();
+  if (v) {
+    u.voice = v;
+    u.lang = v.lang;
+  }
   window.speechSynthesis.speak(u);
 }
 
@@ -411,6 +466,12 @@ function attachListeners() {
     saveSettings();
   });
 
+  els.voiceSelect.addEventListener('change', () => {
+    state.voiceURI = els.voiceSelect.value;
+    saveSettings();
+    speak('Hello, this is a sample of the selected voice.');
+  });
+
   document.querySelectorAll('.play-btn[data-target]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const target = $(btn.dataset.target);
@@ -500,6 +561,7 @@ function init() {
   els.caseSelect = $('case-select');
   els.difficultySelect = $('difficulty-select');
   els.langToggle = $('lang-toggle');
+  els.voiceSelect = $('voice-select');
   els.speedSlider = $('speed-slider');
   els.speedValue = $('speed-value');
   els.briefingEn = $('briefing-en');
@@ -556,7 +618,10 @@ function init() {
   attachListeners();
 
   if ('speechSynthesis' in window) {
-    window.speechSynthesis.onvoiceschanged = () => {};
+    populateVoiceSelect();
+    window.speechSynthesis.onvoiceschanged = () => {
+      populateVoiceSelect();
+    };
     window.speechSynthesis.getVoices();
   }
 }
