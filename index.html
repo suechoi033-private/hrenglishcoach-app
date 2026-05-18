@@ -15,6 +15,7 @@
       </div>
       <div class="header-actions">
         <button id="today-btn" class="primary-btn" title="오늘의 추천 학습으로 이동">📅 오늘의 학습</button>
+        <button id="settings-btn" class="ghost-btn" title="AI 첨삭 설정">⚙️</button>
         <button id="how-to-btn" class="ghost-btn" title="사용법">사용법</button>
       </div>
     </div>
@@ -135,6 +136,15 @@
         <h4>💡 답변 팁</h4>
         <ul id="tips-display"></ul>
       </div>
+
+      <div class="correction-section">
+        <div class="correction-header">
+          <h4>✨ AI 첨삭</h4>
+          <button id="get-correction-btn" class="primary-btn small">AI 첨삭 받기</button>
+        </div>
+        <p id="correction-empty" class="hint">버튼을 누르면 Claude가 문법·표현을 점검하고 더 나은 표현을 제안합니다. (Anthropic API 키 필요 — ⚙️ 설정)</p>
+        <div id="correction-result" class="correction-result hidden"></div>
+      </div>
     </section>
 
     <section class="card history-card">
@@ -154,6 +164,31 @@
     <div id="dict-content" class="popup-content">로딩 중...</div>
   </div>
   <div id="popup-overlay" class="popup-overlay hidden"></div>
+
+  <div id="settings-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="popup-header">
+        <h3>설정</h3>
+        <button class="close-btn" id="close-settings-btn">×</button>
+      </div>
+      <div class="popup-content">
+        <p><b>AI 첨삭 활성화</b></p>
+        <p class="hint" style="margin-bottom: 12px;">Anthropic API 키를 입력하면 답변을 제출한 뒤 AI가 문법과 표현을 첨삭합니다. 키는 이 브라우저에만 저장되며 외부로 전송되지 않습니다(직접 Anthropic API 호출).</p>
+        <label for="api-key-input" style="display:block; font-size:13px; font-weight:600; margin-bottom:6px;">Anthropic API Key</label>
+        <input id="api-key-input" type="password" placeholder="sk-ant-..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-family:monospace; font-size:13px;">
+        <p class="hint" style="margin-top:8px;">
+          키 발급: <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:var(--primary);">console.anthropic.com</a> (회원가입 후 무료 크레딧 제공)
+        </p>
+        <div style="display:flex; gap:8px; margin-top:16px;">
+          <button id="save-settings-btn" class="primary-btn">저장</button>
+          <button id="clear-key-btn" class="ghost-btn">키 삭제</button>
+        </div>
+        <p id="settings-status" class="hint" style="margin-top:12px; min-height:18px;"></p>
+        <hr style="margin:20px 0; border:none; border-top:1px solid var(--border);">
+        <p class="hint">예상 비용: 첨삭 1회당 약 1.5원 (Claude Haiku 4.5 기준). Anthropic 계정에 사용한 만큼 청구됩니다.</p>
+      </div>
+    </div>
+  </div>
 
   <div id="howto-modal" class="modal hidden">
     <div class="modal-content">

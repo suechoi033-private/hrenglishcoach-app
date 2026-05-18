@@ -427,6 +427,99 @@ button {
   padding: 14px;
 }
 
+.correction-section {
+  margin-top: 16px;
+  padding: 14px;
+  background: #f5f3ff;
+  border-left: 3px solid #8b5cf6;
+  border-radius: 8px;
+}
+
+.correction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.correction-header h4 {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.correction-result.hidden {
+  display: none;
+}
+
+.correction-result {
+  font-size: 14px;
+}
+
+.correction-result .corrected-block {
+  background: white;
+  padding: 12px;
+  border-radius: 6px;
+  margin: 10px 0;
+  line-height: 1.7;
+  border: 1px solid #e9d5ff;
+}
+
+.correction-result h5 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 12px 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.correction-result ul {
+  padding-left: 18px;
+  margin-bottom: 8px;
+}
+
+.correction-result li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.correction-result .err-original {
+  color: #991b1b;
+  text-decoration: line-through;
+  margin-right: 6px;
+}
+
+.correction-result .err-fixed {
+  color: #065f46;
+  font-weight: 500;
+  margin-right: 6px;
+}
+
+.correction-result .err-why {
+  display: block;
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.correction-result .overall-feedback {
+  background: white;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-style: italic;
+  color: var(--text);
+  border: 1px solid #e9d5ff;
+  margin-top: 8px;
+}
+
+.correction-result .err {
+  color: var(--danger);
+  font-size: 13px;
+  margin: 6px 0;
+}
+
 .tips-section h4 {
   font-size: 13px;
   font-weight: 600;
