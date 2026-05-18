@@ -1,7 +1,10 @@
 const STORAGE_KEYS = {
   history: 'hrec_history_v1',
-  settings: 'hrec_settings_v1'
+  settings: 'hrec_settings_v1',
+  apiKey: 'hrec_anthropic_key_v1'
 };
+
+const CLAUDE_MODEL = 'claude-haiku-4-5-20251001';
 
 const state = {
   caseIndex: 0,
@@ -199,6 +202,10 @@ function renderQuestion() {
   els.answerText.value = '';
   els.answerVoice.value = '';
   els.feedbackCard.classList.add('hidden');
+  if (els.correctionResult) {
+    els.correctionResult.classList.add('hidden');
+    els.correctionResult.innerHTML = '';
+  }
 }
 
 function renderHistory() {
@@ -390,6 +397,169 @@ function submitAnswer() {
   renderHistory();
 }
 
+function getApiKey() {
+  return localStorage.getItem(STORAGE_KEYS.apiKey) || '';
+}
+
+function setApiKey(key) {
+  if (key) localStorage.setItem(STORAGE_KEYS.apiKey, key);
+  else localStorage.removeItem(STORAGE_KEYS.apiKey);
+}
+
+function buildCorrectionPrompt(userAnswer, question, modelAnswer, difficulty) {
+  return `You are an English coach for Korean HR professionals practicing CEO conversations.
+
+Question from CEO: "${question}"
+Difficulty level: ${difficulty}
+Reference model answer:
+"""
+${modelAnswer}
+"""
+
+User's answer:
+"""
+${userAnswer}
+"""
+
+Provide concise, high-impact feedback. Focus on:
+1. Grammar errors that affect meaning or professionalism
+2. Word choices that sound un-businesslike or weak
+3. Phrases that could be more concise/impactful for a CEO conversation
+
+Return ONLY valid JSON, no markdown, no code fences. Schema:
+{
+  "corrected": "the full user answer rewritten with all fixes applied",
+  "errors": [
+    { "original": "exact phrase from user", "fixed": "corrected phrase", "why": "1 line explanation in KOREAN" }
+  ],
+  "suggestions": [
+    { "original": "an OK phrase from user", "better": "more CEO-appropriate phrase", "why": "1 line explanation in KOREAN" }
+  ],
+  "overallFeedback": "2-3 sentences in KOREAN about overall tone, structure, and HR appropriateness. Be encouraging but honest."
+}
+
+Keep errors and suggestions arrays to max 5 items each. If the user answer is empty or nonsensical, return empty arrays and explain in overallFeedback.`;
+}
+
+async function requestCorrection(prompt) {
+  const apiKey = getApiKey();
+  if (!apiKey) throw new Error('NO_KEY');
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: CLAUDE_MODEL,
+      max_tokens: 1500,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    let msg = 'API ' + res.status;
+    try {
+      const j = JSON.parse(text);
+      if (j.error && j.error.message) msg = j.error.message;
+    } catch {}
+    throw new Error(msg);
+  }
+
+  const data = await res.json();
+  const text = (data.content || []).map((b) => b.text || '').join('');
+  return text.trim();
+}
+
+function parseCorrectionJSON(text) {
+  let s = text.trim();
+  s = s.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
+  const first = s.indexOf('{');
+  const last = s.lastIndexOf('}');
+  if (first !== -1 && last !== -1) s = s.slice(first, last + 1);
+  return JSON.parse(s);
+}
+
+function renderCorrection(c) {
+  const errors = Array.isArray(c.errors) ? c.errors : [];
+  const suggestions = Array.isArray(c.suggestions) ? c.suggestions : [];
+  let html = '';
+  if (c.corrected) {
+    html += '<h5>교정된 답변</h5>';
+    html += '<div class="corrected-block">' + escapeHtml(c.corrected) + '</div>';
+  }
+  if (errors.length > 0) {
+    html += '<h5>문법·오류 (' + errors.length + ')</h5><ul>';
+    errors.forEach((e) => {
+      html += '<li>' +
+        '<span class="err-original">' + escapeHtml(e.original || '') + '</span>' +
+        '<span class="err-fixed">→ ' + escapeHtml(e.fixed || '') + '</span>' +
+        '<span class="err-why">' + escapeHtml(e.why || '') + '</span>' +
+      '</li>';
+    });
+    html += '</ul>';
+  }
+  if (suggestions.length > 0) {
+    html += '<h5>더 나은 표현 제안 (' + suggestions.length + ')</h5><ul>';
+    suggestions.forEach((s) => {
+      html += '<li>' +
+        '<span class="err-original" style="text-decoration:none; color:var(--text-muted);">' + escapeHtml(s.original || '') + '</span>' +
+        '<span class="err-fixed">→ ' + escapeHtml(s.better || '') + '</span>' +
+        '<span class="err-why">' + escapeHtml(s.why || '') + '</span>' +
+      '</li>';
+    });
+    html += '</ul>';
+  }
+  if (c.overallFeedback) {
+    html += '<h5>총평</h5>';
+    html += '<div class="overall-feedback">' + escapeHtml(c.overallFeedback) + '</div>';
+  }
+  return html;
+}
+
+async function runCorrection() {
+  const q = currentQuestion();
+  if (!q) return;
+  const userAnswer = (els.myAnswerDisplay.textContent || '').trim();
+  if (!userAnswer || userAnswer === '(답변 없음)') {
+    els.correctionResult.classList.remove('hidden');
+    els.correctionResult.innerHTML = '<p class="err">답변을 먼저 작성하고 제출해주세요.</p>';
+    return;
+  }
+
+  els.getCorrectionBtn.disabled = true;
+  els.getCorrectionBtn.textContent = '첨삭 중...';
+  els.correctionResult.classList.remove('hidden');
+  els.correctionResult.innerHTML = '<p>Claude가 첨삭 중입니다... (보통 5~10초)</p>';
+
+  try {
+    const prompt = buildCorrectionPrompt(userAnswer, q.q, q.modelAnswer, state.difficulty);
+    const text = await requestCorrection(prompt);
+    const parsed = parseCorrectionJSON(text);
+    els.correctionResult.innerHTML = renderCorrection(parsed);
+  } catch (e) {
+    if (e.message === 'NO_KEY') {
+      els.correctionResult.innerHTML = '<p class="err">API 키가 필요합니다. 우측 상단 ⚙️ 설정에서 Anthropic API 키를 입력하세요.</p>';
+    } else {
+      els.correctionResult.innerHTML = '<p class="err">첨삭 실패: ' + escapeHtml(e.message || String(e)) + '</p>';
+    }
+  } finally {
+    els.getCorrectionBtn.disabled = false;
+    els.getCorrectionBtn.textContent = 'AI 첨삭 받기';
+  }
+}
+
+function openSettings() {
+  els.apiKeyInput.value = getApiKey();
+  els.settingsStatus.textContent = getApiKey() ? '✓ 키가 저장되어 있습니다' : '키가 설정되어 있지 않습니다';
+  els.settingsModal.classList.remove('hidden');
+  els.popupOverlay.classList.remove('hidden');
+}
+
 async function lookupWord(word, glossDef, term) {
   els.dictWord.textContent = word;
   els.dictContent.innerHTML = '<p>로딩 중...</p>';
@@ -435,6 +605,7 @@ function hidePopup() {
   els.dictionaryPopup.classList.add('hidden');
   els.popupOverlay.classList.add('hidden');
   els.howtoModal.classList.add('hidden');
+  if (els.settingsModal) els.settingsModal.classList.add('hidden');
 }
 
 function attachListeners() {
@@ -545,6 +716,27 @@ function attachListeners() {
     els.popupOverlay.classList.remove('hidden');
   });
 
+  els.settingsBtn.addEventListener('click', openSettings);
+  els.closeSettingsBtn.addEventListener('click', hidePopup);
+
+  els.saveSettingsBtn.addEventListener('click', () => {
+    const key = els.apiKeyInput.value.trim();
+    if (key && !/^sk-ant-/i.test(key)) {
+      els.settingsStatus.textContent = '⚠️ 유효한 Anthropic 키 형식이 아닙니다 (sk-ant-...로 시작)';
+      return;
+    }
+    setApiKey(key);
+    els.settingsStatus.textContent = key ? '✓ 저장되었습니다' : '키가 삭제되었습니다';
+  });
+
+  els.clearKeyBtn.addEventListener('click', () => {
+    setApiKey('');
+    els.apiKeyInput.value = '';
+    els.settingsStatus.textContent = '키가 삭제되었습니다';
+  });
+
+  els.getCorrectionBtn.addEventListener('click', runCorrection);
+
   els.todayBtn.addEventListener('click', () => {
     applyTodaysRecommendation(false);
     renderCaseSelect();
@@ -597,6 +789,15 @@ function init() {
   els.todayBtn = $('today-btn');
   els.todayBanner = $('today-banner');
   els.dismissBannerBtn = $('dismiss-banner-btn');
+  els.settingsBtn = $('settings-btn');
+  els.settingsModal = $('settings-modal');
+  els.closeSettingsBtn = $('close-settings-btn');
+  els.apiKeyInput = $('api-key-input');
+  els.saveSettingsBtn = $('save-settings-btn');
+  els.clearKeyBtn = $('clear-key-btn');
+  els.settingsStatus = $('settings-status');
+  els.getCorrectionBtn = $('get-correction-btn');
+  els.correctionResult = $('correction-result');
 
   loadSettings();
   loadHistory();
