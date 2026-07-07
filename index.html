@@ -15,7 +15,6 @@
       </div>
       <div class="header-actions">
         <button id="today-btn" class="primary-btn" title="오늘의 추천 학습으로 이동">📅 오늘의 학습</button>
-        <button id="pro-btn" class="pro-btn" title="Pro 요금제 안내">⭐ Pro</button>
         <button id="settings-btn" class="ghost-btn" title="AI 첨삭 설정">⚙️</button>
         <button id="how-to-btn" class="ghost-btn" title="사용법">사용법</button>
       </div>
@@ -84,16 +83,6 @@
         <h2>🧭 Startup Advisor's Note</h2>
       </div>
       <div id="advisor-content"></div>
-    </section>
-
-    <section class="card lock-card hidden" id="lock-card">
-      <div class="lock-inner">
-        <div class="lock-icon">🔒</div>
-        <h3>이 케이스는 Pro 전용입니다</h3>
-        <p>Briefing과 Case Study는 무료로 읽을 수 있습니다.<br>
-           질문 연습, 모범 답변, 어드바이저 노트 전체는 Pro에서 열립니다.</p>
-        <button id="lock-upgrade-btn" class="primary-btn">Pro 요금제 보기</button>
-      </div>
     </section>
 
     <section class="card practice-card">
@@ -232,60 +221,8 @@
     </div>
   </div>
 
-  <div id="pricing-modal" class="modal hidden">
-    <div class="modal-content pricing-content">
-      <div class="popup-header">
-        <h3>⭐ HR English Coach Pro</h3>
-        <button class="close-btn" id="close-pricing-btn">×</button>
-      </div>
-      <div class="popup-content">
-        <p class="pricing-tagline">스타트업 대표와 HR을 위한, 폭은 좁지만 뾰족한 영어 코치.</p>
-
-        <div class="pricing-grid">
-          <div class="price-card">
-            <h4>무료</h4>
-            <p class="price-amount">0원</p>
-            <ul>
-              <li>케이스 3개 (스타트업 첫 권고사직 포함)</li>
-              <li>음성 듣기 · 음성 답변 · 사전</li>
-              <li>학습 기록</li>
-            </ul>
-          </div>
-          <div class="price-card featured">
-            <h4>Pro</h4>
-            <p class="price-amount">월 9,900원</p>
-            <p class="price-sub">연 79,000원 (월 6,583원 꼴, 33% 절약)</p>
-            <ul>
-              <li>전체 케이스 8개 + 매월 신규 케이스</li>
-              <li>케이스별 Startup Advisor's Note 전체</li>
-              <li>실행 체크리스트</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="subscribe-box">
-          <h4>구독 신청</h4>
-          <p class="hint">아래 버튼으로 신청하면 결제 안내와 함께 라이선스 코드를 보내드립니다.</p>
-          <!-- TODO(운영): 토스페이먼츠/Stripe 결제 링크 생기면 아래 mailto를 교체 -->
-          <a class="primary-btn" href="mailto:sue.choi033@gmail.com?subject=%5BHR%20English%20Coach%5D%20Pro%20%EA%B5%AC%EB%8F%85%20%EC%8B%A0%EC%B2%AD&body=%EC%9B%94%EA%B0%84%20%2F%20%EC%97%B0%EA%B0%84%20%EC%A4%91%20%EC%84%A0%ED%83%9D%ED%95%B4%20%EC%A0%81%EC%96%B4%20%EC%A3%BC%EC%84%B8%EC%9A%94.">이메일로 구독 신청</a>
-        </div>
-
-        <hr style="margin:20px 0; border:none; border-top:1px solid var(--border);">
-
-        <div class="redeem-box">
-          <h4>라이선스 코드 입력</h4>
-          <div class="redeem-row">
-            <input id="license-input" type="text" placeholder="HREC-XXXX-XXXX" autocomplete="off">
-            <button id="redeem-btn" class="primary-btn small">활성화</button>
-          </div>
-          <p id="redeem-status" class="hint" style="min-height:18px;"></p>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script src="cases.js"></script>
   <script src="app.js"></script>
-  <script src="pro.js"></script>
+  <script src="advisor.js"></script>
 </body>
 </html>

@@ -741,20 +741,8 @@ button {
 }
 
 /* ============================================================
-   Pro (유료화) — 가격 모달, 잠금 카드, 어드바이저 노트
+   Startup Advisor's Note
    ============================================================ */
-.pro-btn {
-  background: linear-gradient(135deg, #f5b301, #e88d00);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-}
-.pro-btn:hover { filter: brightness(1.05); }
-
 .advisor-card { border-left: 4px solid #e88d00; }
 .advisor-target { font-size: 13px; font-weight: 700; color: #8a6d1a; margin-bottom: 10px; }
 .advisor-points { padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
@@ -762,66 +750,4 @@ button {
 .advisor-check-title { margin: 14px 0 8px; font-size: 14px; }
 .advisor-checklist { padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
 .advisor-checklist li { font-size: 13.5px; }
-.advisor-locked {
-  margin-top: 12px;
-  background: #fff7e0;
-  border: 1px dashed #e0b64c;
-  border-radius: 10px;
-  padding: 12px 14px;
-  font-size: 13.5px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
 .advisor-disclaimer { margin-top: 12px; font-size: 12px; }
-
-.lock-card { text-align: center; }
-.lock-inner { padding: 24px 12px; }
-.lock-icon { font-size: 36px; margin-bottom: 8px; }
-.lock-inner h3 { margin-bottom: 8px; }
-.lock-inner p { color: var(--text-soft, #666); font-size: 14px; margin-bottom: 16px; }
-
-.pricing-content { max-width: 560px; }
-.pricing-tagline { font-size: 14px; color: var(--text-soft, #666); margin-bottom: 16px; }
-.pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.price-card {
-  border: 1px solid var(--border, #ddd);
-  border-radius: 12px;
-  padding: 16px;
-}
-.price-card.featured { border: 2px solid #e88d00; background: #fffdf5; }
-.price-card h4 { margin-bottom: 6px; }
-.price-amount { font-size: 22px; font-weight: 800; }
-.price-sub { font-size: 12px; color: var(--text-soft, #666); margin-top: 2px; }
-.price-card ul { padding-left: 18px; margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
-.price-card li { font-size: 13px; }
-
-.hr-discount {
-  margin-top: 14px;
-  background: #eef6ee;
-  border: 1px solid #bcd9bc;
-  border-radius: 12px;
-  padding: 14px 16px;
-}
-.hr-discount h4 { margin-bottom: 6px; }
-.hr-discount p { font-size: 13.5px; margin-bottom: 10px; }
-.hr-discount a { text-decoration: none; display: inline-block; }
-
-.subscribe-box { margin-top: 14px; }
-.subscribe-box a { text-decoration: none; display: inline-block; margin-top: 6px; }
-
-.redeem-row { display: flex; gap: 8px; }
-.redeem-row input {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid var(--border, #ddd);
-  border-radius: 8px;
-  font-family: monospace;
-  font-size: 14px;
-  text-transform: uppercase;
-}
-
-@media (max-width: 560px) {
-  .pricing-grid { grid-template-columns: 1fr; }
-}
